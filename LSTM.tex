@@ -76,12 +76,52 @@ LSTM (eng. Long Short-Term Memory) je podvrsta rekurentne neuronske mreže. Reku
 \subsection{Primena na vremenske serije}
 Predviđanje vremenskih serija se može opisati kao proces koji izvlači korisne informacije iz vrednosti koje su se realizovale u nekom prethodnom trenutku, i na osnovu njih predviđa buduće vrednosti. Nailazimo na veliku primenu ove tehnike u oblastima poput vremenske prognoze, planiranja transporta, odnosno regulisanja saobraćaja. Metode predviđanja koje su bazirane na neuronskim mrežama stiču veliku popularnost jer je dokazano da mogu biti podjednako dobre kao klasične statističke metode. 
 
+\section{Opis problema}
 Cilj ovog rada je demonstriranje upotrebe LSTM neuronske mreže na problem predviđanja vremenskih serija. Kako je predviđanje toka pandemije virusa u trenutku pisanja ovog rada jedna od najektuelnijih tema, podaci koje koristimo predstavljaju broj obolelih, kao i broj žrtava zaraze ovim virusom.  
+\subsection{Opis baze}
+Za potrebe ovog projekta koršcena je baza podataka COVID19 Global Forecasting koja se u trenutku razvijanja ovog projekta svakodnevno ažurira. U njoj se nalaze podaci o broju osoba koje su potvrđeno zaražene virusom COVID-19, broju umrlih osoba koje su bile zaražene, datumi, pokrajne i države na koje se date brojke odnose. Podaci su smešteni u dva fajla test.csv i train.csv.   
+
+\section{Rešenje problema}
+Problem predviđanja toka pandemije virusa resavamo pomocu LSTM nerunske mreže. Program se sastoji iz sledecih delova:
+\begin{itemize}
+    \item \textbf{Pretprocesiranje}
+    \item \textbf{Učenje modela nad trening podacima}
+    \item \textbf{Testiranje modela}
+\end{itemize}
+
+
+\subsection{Pretprocesiranje}
+Kako bismo primenili LSTM neuronske mreže moramo da sredimo podatke koje imamo. To, u ovom slučaju, podrazumeva popunjavanje nedostajućih vrednost kao i normalizaciju podataka.
+
+
+Nedostajuće vrednosti imamo u koloni Province\_State. U svakom takvom slučaju u kom je vrednost iste kolone null, tu vrednost zamenjujemo sa vrednostima u koloni Country\_Region.  \ref{fig:Pretprocesiranje1}
+\begin{figure}[htp]
+    \centering
+    \includegraphics[scale=0.5]{pretprocesiranje1.png}
+    \caption{Popunjavanje nedostajućih vrednosti}
+    \label{fig:Pretprocesiranje1}
+\end{figure}
+
+Kada mreža koristi podatke koji su u velikom rasponu vrednosti, za velike ulaze može doći do velikog usporavanja učenja kao i konvergencije, stoga potrebno je skalirati date podatke. Postoje dva nacina za skaliranje vrednosti:
+
+\begin{itemize}
+    \item \textbf{Normalizacija}: Ponovno skaliranje vrednosti podataka tako da su svi u opsegu od 0 do 1.
+    \item \textbf{Standardizacija}: Reskaliranje vrednosti podataka tako da je srednja vrednost 0 a standardna devijacija 1.
+\end{itemize}
+
+Za potrebe ovog projekta korisćena je normalizacija (Standardizaciju ima smisla koristiti kada bi imali Gausovu raspodelu). Normalizaciju datog skupa podataka vršimo pomoću biblioteke scikit-learn i objekta MinMaxScaler.\ref{fig:Pretprocesiranje2}
+
+\begin{figure}[htp]
+    \centering
+    \includegraphics[scale=0.5]{pretprocesiranje2.png}
+    \caption{Normalizacija podataka}
+    \label{fig:Pretprocesiranje2}
+\end{figure}
 
 
 
-
-
+\subsection{Učenje modela nad trening podacima}
+\subsection{Testiranje modela}
 
 
 \section{Zaključak}
@@ -97,3 +137,4 @@ Cilj ovog rada je demonstriranje upotrebe LSTM neuronske mreže na problem predv
 \section{Dodatak}
 
 \end{document}
+
