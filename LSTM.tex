@@ -11,7 +11,7 @@
 %\usepackage[english,serbianc]{babel} %ukljuciti babel sa ovim opcijama, umesto gornjim, ukoliko se koristi cirilica
 
 \usepackage[unicode]{hyperref}
-\hypersetup{colorlinks,citecolor=green,filecolor=green,linkcolor=blue,urlcolor=blue}
+\hypersetup{colorlinks,citecolor=blue,filecolor=green,linkcolor=blue,urlcolor=blue}
 
 \usepackage{listings}
 
@@ -62,7 +62,7 @@
 \maketitle
 
 \abstract{
-
+U okviru ovog rada predstavljen je primer implementacije LSTM neuronske mreže u programskom jeziku Python, uz korišćenje biblioteka za rad kao što su pandas, numpy, keras i druge. Problem koji rešavamo jeste predviđanje broja obolelih osoba, kao i broja smrtnih slučajeva od virusa koji je zahvatio čitav svet. Videćemo koje su prednosti navedene vrste neuronskih mreža, kao i koja su njena ograničenja. Takođe ćemo se poslužiti jednom od dobro poznatih statističkih metoda koje rade sa ovom vrstom podataka i uporedićemo dobijene rezultate oba modela.
 }
 
 \tableofcontents
@@ -71,26 +71,30 @@
 
 \section{Uvod}
 \label{sec:uvod}
-LSTM (eng. Long Short-Term Memory) je podvrsta rekurentne neuronske mreže. Rekurente neuronske mreže (eng. Recurrent Neural Networks - RNN) su specijalan tip neuronskih mreža koje se koriste za sekvencijalne probleme učenja. Eksperimenti su pokazali da je veoma teško trenirati rekurentne neuronske mreže efikasno. Naime, prilikom ažuriranja težina, može doći do toga da njihova promena bude toliko mala da nema efekta (vanishing gradient), odnosno toliko velika da su promene prevelike (exploding gradient). LSTM prevazilaze probleme klasičnih rekurentnih mreža. 
+LSTM (eng. Long Short-Term Memory) je podvrsta rekurentne neuronske mreže. Rekurente neuronske mreže (eng. Recurrent Neural Networks - RNN) su specijalan tip neuronskih mreža koje se koriste za sekvencijalne probleme učenja. Eksperimenti su pokazali da ih je veoma teško trenirati efikasno. Naime, prilikom ažuriranja težina, može doći do toga da njihova promena bude toliko mala da nema efekta (dovodi do problema koji se zove vanishing gradient), odnosno toliko velika da su promene prevelike (dovodi do problema koji je poznat kao exploding gradient). LSTM mreže prevazilaze probleme klasičnih rekurentnih mreža. 
 
 \subsection{Primena na vremenske serije}
-Predviđanje vremenskih serija se može opisati kao proces koji izvlači korisne informacije iz vrednosti koje su se realizovale u nekom prethodnom trenutku, i na osnovu njih predviđa buduće vrednosti. Nailazimo na veliku primenu ove tehnike u oblastima poput vremenske prognoze, planiranja transporta, odnosno regulisanja saobraćaja. Metode predviđanja koje su bazirane na neuronskim mrežama stiču veliku popularnost jer je dokazano da mogu biti podjednako dobre kao klasične statističke metode. 
+Predviđanje vremenskih serija se može opisati kao proces koji izvlači korisne informacije iz vrednosti koje su se realizovale u nekom prethodnom trenutku, i na osnovu njih predviđa buduće vrednosti. Nailazimo na veliku primenu ove tehnike u oblastima poput vremenske prognoze, planiranja transporta, odnosno regulisanja saobraćaja. Metode predviđanja koje su bazirane na neuronskim mrežama stiču veliku popularnost jer je dokazano da mogu biti podjednako dobre kao klasične statističke metode \cite{siami2018forecasting}. 
+Analiza vremenskih serija i predviđanje su predmet intenzivnog proučavanja poslednjih 40 godina. Statistički model ARIMA (eng. Autoregressive Integrated Moving Average) je zbog svoje uspešnosti često korišćen za analizu procesa koji su vremenski zavisni. Međutim, glavno ograničenje ovog modela je to što ima tendenciju da teži ka srednjim vrednostima. 
+
+\section{LSTM neuronske mreže}
+
 
 \section{Opis problema}
-Cilj ovog rada je demonstriranje upotrebe LSTM neuronske mreže na problem predviđanja vremenskih serija. Kako je predviđanje toka pandemije virusa u trenutku pisanja ovog rada jedna od najektuelnijih tema, podaci koje koristimo predstavljaju broj obolelih, kao i broj žrtava zaraze ovim virusom.  
-\subsection{Opis baze}
-Za potrebe ovog projekta koršcena je baza podataka COVID19 Global Forecasting koja se u trenutku razvijanja ovog projekta svakodnevno ažurira. U njoj se nalaze podaci o broju osoba koje su potvrđeno zaražene virusom COVID-19, broju umrlih osoba koje su bile zaražene, datumi, pokrajne i države na koje se date brojke odnose. Podaci su smešteni u dva fajla test.csv i train.csv.   
+Cilj ovog rada je demonstriranje upotrebe LSTM neuronske mreže na problem predviđanja vremenskih serija. Kako je predviđanje toka pandemije virusa u trenutku pisanja ovog rada jedna od najektuelnijih tema, podaci koje koristimo predstavljaju broj obolelih, kao i broj žrtava zaraze ovim virusom. Zadatak je predvideti kako će se ovi brojevi menjati kroz dane koji slede. Kako bismo pokazali uspešnost ove metode, uporedićemo je sa ranije pomenutom metodom ARIMA. 
 
+\subsection{Opis baze}
+Za potrebe ovog projekta korišćena je baza podataka COVID19 Global Forecasting koja se u trenutku razvijanja ovog projekta svakodnevno ažurira (može se pronaći na sledećoj adresi: \url{https://www.kaggle.com/c/covid19-global-forecasting-week-3}). Baza sadrži podatke o broju osoba koje su potvrđeno zaražene virusom COVID-19, broj osoba koje su preminule, datume po danima počevši od 22.1.2020, kao i pokrajine i države na koje se date brojke odnose. Podaci su smešteni u fajl pod nazivom train.csv. 
 \section{Rešenje problema}
-Problem predviđanja toka pandemije virusa resavamo pomocu LSTM nerunske mreže. Program se sastoji iz sledecih delova:
+Problem predviđanja toka pandemije virusa rešavamo pomoću LSTM neuronske mreže. Program se sastoji iz sledećih delova:
 \begin{itemize}
-    \item \textbf{Pretprocesiranje}
+    \item \textbf{Preprocesiranje}
     \item \textbf{Učenje modela nad trening podacima}
     \item \textbf{Testiranje modela}
 \end{itemize}
 
 
-\subsection{Pretprocesiranje}
+\subsection{Preprocesiranje}
 Kako bismo primenili LSTM neuronske mreže moramo da sredimo podatke koje imamo. To, u ovom slučaju, podrazumeva popunjavanje nedostajućih vrednost kao i normalizaciju podataka.
 
 
@@ -102,7 +106,7 @@ Nedostajuće vrednosti imamo u koloni Province\_State. U svakom takvom slučaju 
     \label{fig:Pretprocesiranje1}
 \end{figure}
 
-Kada mreža koristi podatke koji su u velikom rasponu vrednosti, za velike ulaze može doći do velikog usporavanja učenja kao i konvergencije, stoga potrebno je skalirati date podatke. Postoje dva nacina za skaliranje vrednosti:
+Kada mreža koristi podatke koji su u velikom rasponu vrednosti, za velike ulaze može doći do velikog usporavanja učenja kao i konvergencije, stoga je potrebno skalirati date podatke. Postoje dva nacina za skaliranje vrednosti:
 
 \begin{itemize}
     \item \textbf{Normalizacija}: Ponovno skaliranje vrednosti podataka tako da su svi u opsegu od 0 do 1.
@@ -130,7 +134,7 @@ Za potrebe ovog projekta korisćena je normalizacija (Standardizaciju ima smisla
 
 \addcontentsline{toc}{section}{Literatura}
 \appendix
-\bibliography{seminarski.bib} 
+\bibliography{bibliography.bib} 
 \bibliographystyle{plain}
 
 \appendix
