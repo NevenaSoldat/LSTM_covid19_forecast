@@ -71,13 +71,22 @@ U okviru ovog rada predstavljen je primer implementacije LSTM neuronske mreže u
 
 \section{Uvod}
 \label{sec:uvod}
-LSTM (eng. Long Short-Term Memory) je podvrsta rekurentne neuronske mreže. Rekurente neuronske mreže (eng. Recurrent Neural Networks - RNN) su specijalan tip neuronskih mreža koje se koriste za sekvencijalne probleme učenja. Eksperimenti su pokazali da ih je veoma teško trenirati efikasno. Naime, prilikom ažuriranja težina, može doći do toga da njihova promena bude toliko mala da nema efekta (dovodi do problema koji se zove vanishing gradient), odnosno toliko velika da su promene prevelike (dovodi do problema koji je poznat kao exploding gradient). LSTM mreže prevazilaze probleme klasičnih rekurentnih mreža. 
+Rekurentne neuronske mreže (eng. Recurrent Neural Networks - RNN) predstavljaju arhitekturu mreža specijalizovanu za obradu sekvencijalnih podataka, poput rečenica prirodnog jezika i vremenskih serija. One su konstruisane sa idejom da se modeluje zavisnost među instancama. Eksperimenti su pokazali da ih je veoma teško trenirati efikasno. Naime, prilikom ažuriranja težina, može doći do toga da njihova promena bude toliko mala da nema efekta (dovodi do problema nestajućih gradijenata), odnosno toliko velika da su promene prevelike (dovodi do problema eksplodirajućih gradijenata). Ovaj problem se prevazilazi upotrebom duge kratkoročne memorije (eng. long short term memory - LSTM), što je složena jedinica mreže sa specifičnom strukturom koja omogućava kontrolu čitanja i upisa u jedinicu. Upravo ova vrsta jedinice dovela je do ključnih uspeha rekurentnih neuronskih mreža, i predstavlja standardni izbor prilikom formulisanja modela rekurentne mreže \cite{matf}. 
 
 \subsection{Primena na vremenske serije}
 Predviđanje vremenskih serija se može opisati kao proces koji izvlači korisne informacije iz vrednosti koje su se realizovale u nekom prethodnom trenutku, i na osnovu njih predviđa buduće vrednosti. Nailazimo na veliku primenu ove tehnike u oblastima poput vremenske prognoze, planiranja transporta, odnosno regulisanja saobraćaja. Metode predviđanja koje su bazirane na neuronskim mrežama stiču veliku popularnost jer je dokazano da mogu biti podjednako dobre kao klasične statističke metode \cite{siami2018forecasting}. 
 Analiza vremenskih serija i predviđanje su predmet intenzivnog proučavanja poslednjih 40 godina. Statistički model ARIMA (eng. Autoregressive Integrated Moving Average) je zbog svoje uspešnosti često korišćen za analizu procesa koji su vremenski zavisni. Međutim, glavno ograničenje ovog modela je to što ima tendenciju da teži ka srednjim vrednostima. 
 
 \section{LSTM neuronske mreže}
+Osnovna ideja LSTM-a je postojanje takozvane ćelije koja čuva skriveno stanje, uz kontrolu pisanja, čitanja i zaboravljanja, koja se vrši na osnovu naučenih pravila. Na slici \ref{fig:jedinica} prikazana je struktura LSTM jedinice, koja prikazuje ćeliju u centru i nekoliko kapija koje kontrolišu prethodno pomenute aspekte. Svaka od kapija ima strukturu kao jedinica standardne rekurentne mreže i na osnovu ulaza koje dobija i pridruženih im parametara odlučuje o tome da li i u kolikoj meri dozvoljava izvršavanje operacije koju kontroliše. Kapija koja kontroliše zaboravljanje odlučuje šta je bitno sačuvati iz prethodnog koraka. Ulazna kapija odlučuje koje informacije treba dodati iz trenutnog koraka. Izlazna kapija određuje sledeće skriveno stanje. Prednost LSTM jedinice je to što ćelija ne mora da prihvata ulazne signale, i stoga može dugo da čuva informaciju o dalekim delovima sekvence. 
+
+\begin{figure}[htp]
+    \centering
+    \includegraphics[scale=0.4]{LSTM.png}
+    \caption{Struktura LSTM jedinice}
+    \label{fig:jedinica}
+\end{figure}
+
 
 
 \section{Opis problema}
