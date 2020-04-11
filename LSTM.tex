@@ -82,7 +82,7 @@ Osnovna ideja LSTM-a je postojanje takozvane ćelije koja čuva skriveno stanje,
 
 \begin{figure}[htp]
     \centering
-    \includegraphics[scale=0.4]{LSTM.png}
+    \includegraphics[scale=0.4]{lstm.png}
     \caption{Struktura LSTM jedinice}
     \label{fig:jedinica}
 \end{figure}
@@ -92,13 +92,14 @@ Osnovna ideja LSTM-a je postojanje takozvane ćelije koja čuva skriveno stanje,
 \section{Opis problema}
 Cilj ovog rada je demonstriranje upotrebe LSTM neuronske mreže na problem predviđanja vremenskih serija. Kako je predviđanje toka pandemije virusa u trenutku pisanja ovog rada jedna od najektuelnijih tema, podaci koje koristimo predstavljaju broj obolelih, kao i broj žrtava zaraze ovim virusom. Zadatak je predvideti kako će se ovi brojevi menjati kroz dane koji slede. Kako bismo pokazali uspešnost ove metode, uporedićemo je sa ranije pomenutom metodom ARIMA. 
 
-\subsection{Opis baze}
+\subsection{Opis baze podataka}
 Za potrebe ovog projekta korišćena je baza podataka COVID19 Global Forecasting koja se u trenutku razvijanja ovog projekta svakodnevno ažurira (može se pronaći na sledećoj adresi: \url{https://www.kaggle.com/c/covid19-global-forecasting-week-3}). Baza sadrži podatke o broju osoba koje su potvrđeno zaražene virusom COVID-19, broj osoba koje su preminule, datume po danima počevši od 22.1.2020, kao i pokrajine i države na koje se date brojke odnose. Podaci su smešteni u fajl pod nazivom train.csv. 
+
 \section{Rešenje problema}
 Problem predviđanja toka pandemije virusa rešavamo pomoću LSTM neuronske mreže. Program se sastoji iz sledećih delova:
 \begin{itemize}
     \item \textbf{Preprocesiranje}
-    \item \textbf{Učenje modela nad trening podacima}
+    \item \textbf{Konfiguracija modela}
     \item \textbf{Testiranje modela}
 \end{itemize}
 
@@ -107,10 +108,10 @@ Problem predviđanja toka pandemije virusa rešavamo pomoću LSTM neuronske mre�
 Kako bismo primenili LSTM neuronske mreže moramo da sredimo podatke koje imamo. To, u ovom slučaju, podrazumeva popunjavanje nedostajućih vrednost kao i normalizaciju podataka.
 
 
-Nedostajuće vrednosti imamo u koloni Province\_State. U svakom takvom slučaju u kom je vrednost iste kolone null, tu vrednost zamenjujemo sa vrednostima u koloni Country\_Region.  \ref{fig:Pretprocesiranje1}
+Nedostajuće vrednosti imamo u koloni Province\_State. Te vrednosti popunjavamo sa vrednostima iz kolone Country\_Region, što je prikazano na slici \ref{fig:Pretprocesiranje1}.  
 \begin{figure}[htp]
     \centering
-    \includegraphics[scale=0.5]{pretprocesiranje1.png}
+    \includegraphics[scale=0.5]{preprocesiranje1.png}
     \caption{Popunjavanje nedostajućih vrednosti}
     \label{fig:Pretprocesiranje1}
 \end{figure}
@@ -122,18 +123,27 @@ Kada mreža koristi podatke koji su u velikom rasponu vrednosti, za velike ulaze
     \item \textbf{Standardizacija}: Reskaliranje vrednosti podataka tako da je srednja vrednost 0 a standardna devijacija 1.
 \end{itemize}
 
-Za potrebe ovog projekta korisćena je normalizacija (Standardizaciju ima smisla koristiti kada bi imali Gausovu raspodelu). Normalizaciju datog skupa podataka vršimo pomoću biblioteke scikit-learn i objekta MinMaxScaler.\ref{fig:Pretprocesiranje2}
+Za potrebe ovog projekta korišćena je normalizacija (Standardizaciju ima smisla koristiti kada bi imali Gausovu raspodelu). Normalizaciju datog skupa podataka vršimo pomoću biblioteke scikit-learn i objekta MinMaxScaler.\ref{fig:Pretprocesiranje2}
 
 \begin{figure}[htp]
     \centering
-    \includegraphics[scale=0.5]{pretprocesiranje2.png}
+    \includegraphics[scale=0.5]{preprocesiranje2.png}
     \caption{Normalizacija podataka}
     \label{fig:Pretprocesiranje2}
 \end{figure}
 
+Kako bi podaci bili u odgovarajućem obliku, vršimo transformaciju na sledeći način. Odvajamo podatke za broj obolelih od podataka za broj smrtnih slučajeva. U oba slučaja kolona za datum postaje indeks, dok različite države smeštamo po kolonama. Tako imamo za svaku državu broj slučajeva uređene po danima. Početni datum je 22.01.2020, a broj država u ovom trenutku je 184. Model koji gradimo radi sa brojem instanci koji je jednak broju dana za koje imamo podatke, i paralelno vrši predviđanje za sve države. 
 
+\subsection{Konfiguracija modela}
+Kako podaci koje imamo predstavljaju vremenske serije, sami moramo formirati ulaz, odnosno izlaz iz mreže. Ulaz je predstavljen podacima za tri dana uzastopno, dok je izlaz broj za četvrti dan. 
+Funkcija split\_sequences (sequences, n\_steps\_in, n\_steps\_out) obavlja taj zadatak. LSTM sloj zahteva da ulazni podaci budu u sledećem obliku - (n\_samples, n\_steps, n\_features)\footnote{n\_samples predstavlja broj uzoraka, n\_steps broj koraka, a n\_features broj izlaza}, odnosno da imaju tri dimenzije. Prethodno opisana funkcija nam baš to omogućava. 
 
-\subsection{Učenje modela nad trening podacima}
+Sledeći korak je podela podataka na trening i test skup. Kako funkcija train\_test\_split podelu vrši na nasumičan način, mi je ne možemo koristiti. Vremenske serije zahtevaju da ostane održano uređenje podataka. Podelu radimo ručno, 80\% podataka je odvojeno za trening, a 20\% za test. 
+
+\subsubsection{Model za broj potvrđenih slučajeva}
+
+\subsubsection{Model za broj smrtnih slučajeva}
+
 \subsection{Testiranje modela}
 
 
